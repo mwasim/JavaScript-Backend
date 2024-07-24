@@ -25,6 +25,18 @@ app.get("/json", (req, res) => {
   res.json({ message: message });
 });
 
+//implement root level Request Logger
+const logger = (req, res, next) => {
+  const method = req.method;
+  const path = req.path;
+  const ip = req.ip;
+
+  console.log(`${method} ${path} - ${ip}`);
+
+  next();
+};
+app.use("/", logger); //Use custom middleware logger
+
 //list server on port
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
