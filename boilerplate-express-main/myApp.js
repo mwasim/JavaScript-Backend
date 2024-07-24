@@ -37,6 +37,18 @@ const logger = (req, res, next) => {
 };
 app.use("/", logger); //Use custom middleware logger
 
+//Chain middleware to create a time server
+app.get(
+  "/now",
+  (req, res, next) => {
+    req.time = new Date().toString();
+    next();
+  },
+  (req, res) => {
+    res.json({ time: req.time });
+  }
+);
+
 //list server on port
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
