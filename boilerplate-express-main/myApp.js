@@ -49,6 +49,24 @@ app.get(
   }
 );
 
+//get route parameter input (:word) from the client
+app.get("/:word/echo", (req, res) => {
+  const word = req.params.word;
+  res.json({ echo: word });
+});
+
+//get query parameter input from the client
+app.get("/name", (req, res) => {
+  const { first, last } = req.query;
+  res.json({ name: `${first} ${last}` });
+});
+
+//get data from POST requests
+app.route("/name").post((req, res) => {
+  const { first, last } = req.body;
+  res.json({ name: `${first} ${last}` });
+});
+
 //list server on port
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
