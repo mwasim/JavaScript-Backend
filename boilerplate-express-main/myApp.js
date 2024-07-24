@@ -2,6 +2,11 @@ let express = require("express");
 let app = express();
 const path = require("path");
 
+//Use body-parser to parse POST requests
+const bodyParser = require("body-parser");
+//middleware to parse post requests using body-parser
+app.use(bodyParser.urlencoded({ extended: false }));
+
 //console.log("Hello!", path.join(__dirname, "views", "index.html"));
 
 //middleware to server static assets
