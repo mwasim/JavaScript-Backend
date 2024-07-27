@@ -96,6 +96,16 @@ router.get("/create-and-save-person", function (req, res, next) {
       console.log("Missing `done()` argument");
       return next({ message: "Missing callback argument" });
     }
+
+    //Used promises syntax as callback syntax is deprecated in newer versions of mongoose
+    Person.findById(data._id)
+      .then(pers => {
+        res.json(pers);
+        pers.remove();
+      })
+      .catch(err => next(err));
+    
+    /* //callback syntax is deprecated
     Person.findById(data._id, function (err, pers) {
       if (err) {
         return next(err);
@@ -103,7 +113,7 @@ router.get("/create-and-save-person", function (req, res, next) {
       res.json(pers);
       pers.remove();
     });
-  });
+  });*/
 });
 
 const createPeople = require("./myApp.js").createManyPeople;

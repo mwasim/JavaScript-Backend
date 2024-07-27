@@ -1,14 +1,42 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 console.log(process.env.MONGO_URI);
 
 mongoose.connect(process.env.MONGO_URI);
 
-let Person;
+//create person schema
+const personSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  age: Number,
+  favoriteFoods: [String],
+});
+
+//create Person model based on personSchema
+let Person = mongoose.model("Person", personSchema);
 
 const createAndSavePerson = (done) => {
-  done(null /*, data*/);
+  const john = new Person({
+    name: "John Corner",
+    age: 19,
+    favoriteFoods: ["apple", "bannana", "Oats"],
+  });
+
+  john
+    .save()
+    .then((data) => done(null, data))
+    .catch((error) => done(error));
+
+  //Callback syntax is deprecated
+  // john.save((err, data) => {
+  //   if(err!=null) return done(err);
+  //   done(null, data);
+  // });
+  //done(null /*, data*/);
 };
 
 const createManyPeople = (arrayOfPeople, done) => {
