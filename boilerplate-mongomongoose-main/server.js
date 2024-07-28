@@ -186,6 +186,31 @@ router.post("/find-all-by-name", function (req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
+  Person.create(req.body)
+    .then(pers => {
+      findByName(pers.name, function (err, data) {
+      clearTimeout(t);
+      if (err) {
+        return next(err);
+      }
+      if (!data) {
+        console.log("Missing `done()` argument");
+        return next({ message: "Missing callback argument" });
+      }
+      res.json(data);
+        //Person.remove().exec();
+      Person.deleteMany({})
+      .then(success => console.log(success))
+      .catch(error => console.log(error));
+    });
+    })
+    .catch(error => {
+     if (error) {
+          next(error);
+        }
+    });
+  
+  /*
   Person.create(req.body, function (err, pers) {
     if (err) {
       return next(err);
@@ -202,7 +227,7 @@ router.post("/find-all-by-name", function (req, res, next) {
       res.json(data);
       Person.remove().exec();
     });
-  });
+  });*/
 });
 
 const findByFood = require("./myApp.js").findOneByFood;
