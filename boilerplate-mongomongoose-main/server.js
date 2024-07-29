@@ -229,7 +229,34 @@ router.post("/find-all-by-name", function (req, res, next) {
     });
   });*/
 });
+  
+const findByFood = require("./myApp.js").findOneByFood;
+router.post("/find-one-by-food", function (req, res, next) {
+  let t = setTimeout(() => {
+    next({ message: "timeout" });
+  }, TIMEOUT);
+  let p = new Person(req.body);
+  p.save()
+    .then(pers => {
+        findByFood(pers.favoriteFoods[0], function (err, data) {
+          clearTimeout(t);
+          if (err) {
+            return next(err);
+          }
+          if (!data) {
+            console.log("Missing `done()` argument");
+            return next({ message: "Missing callback argument" });
+          }
+          res.json(data);
+          p.deleteOne();
+          //p.remove();
+        });
+    }).catch(error => { 
+      return next(error);
+    });  
+}); 
 
+  /*
 const findByFood = require("./myApp.js").findOneByFood;
 router.post("/find-one-by-food", function (req, res, next) {
   let t = setTimeout(() => {
@@ -253,7 +280,7 @@ router.post("/find-one-by-food", function (req, res, next) {
       p.remove();
     });
   });
-});
+});*/
 
 const findById = require("./myApp.js").findPersonById;
 router.get("/find-by-id", function (req, res, next) {
