@@ -99,12 +99,12 @@ router.get("/create-and-save-person", function (req, res, next) {
 
     //Used promises syntax as callback syntax is deprecated in newer versions of mongoose
     Person.findById(data._id)
-      .then(pers => {
+      .then((pers) => {
         res.json(pers);
         pers.remove();
       })
-      .catch(err => next(err));
-    
+      .catch((err) => next(err));
+
     /* //callback syntax is deprecated
     Person.findById(data._id, function (err, pers) {
       if (err) {
@@ -115,42 +115,41 @@ router.get("/create-and-save-person", function (req, res, next) {
     });
   });*/
   });
-  
-  const createPeople = require("./myApp.js").createManyPeople;
-  router.post("/create-many-people", function (req, res, next) {
-  
-    Person.deleteMany({})
-      .then(success => { 
-          // in case of incorrect function use wait timeout then respond
-          let t = setTimeout(() => {
-            next({ message: "timeout" });
-          }, TIMEOUT);
-          createPeople(req.body, function (err, data) {
-            clearTimeout(t);
-            if (err) {
-              return next(err);
-            }
-            if (!data) {
-              console.log("Missing `done()` argument");
-              return next({ message: "Missing callback argument" });
-            }
-
-            //Promises syntax used as callback syntax is deprecated.
-            Person.find({}) // find all documents
-              .then(pers=> {
-                res.json(pers);         
-                Person.deleteMany({})
-                .then(success => console.log(success))
-                .catch(error => console.log(error));
-
-              }).catch(err => next(err));
-            
-          });
-      })
-      .catch(error => next(error)); 
 });
 
-  /*
+const createPeople = require("./myApp.js").createManyPeople;
+router.post("/create-many-people", function (req, res, next) {
+  Person.deleteMany({})
+    .then((success) => {
+      // in case of incorrect function use wait timeout then respond
+      let t = setTimeout(() => {
+        next({ message: "timeout" });
+      }, TIMEOUT);
+      createPeople(req.body, function (err, data) {
+        clearTimeout(t);
+        if (err) {
+          return next(err);
+        }
+        if (!data) {
+          console.log("Missing `done()` argument");
+          return next({ message: "Missing callback argument" });
+        }
+
+        //Promises syntax used as callback syntax is deprecated.
+        Person.find({}) // find all documents
+          .then((pers) => {
+            res.json(pers);
+            Person.deleteMany({})
+              .then((success) => console.log(success))
+              .catch((error) => console.log(error));
+          })
+          .catch((err) => next(err));
+      });
+    })
+    .catch((error) => next(error));
+});
+
+/*
 const createPeople = require("./myApp.js").createManyPeople;
 router.post("/create-many-people", function (req, res, next) {
   Person.remove({}, function (err) {
@@ -187,29 +186,29 @@ router.post("/find-all-by-name", function (req, res, next) {
     next({ message: "timeout" });
   }, TIMEOUT);
   Person.create(req.body)
-    .then(pers => {
+    .then((pers) => {
       findByName(pers.name, function (err, data) {
-      clearTimeout(t);
-      if (err) {
-        return next(err);
-      }
-      if (!data) {
-        console.log("Missing `done()` argument");
-        return next({ message: "Missing callback argument" });
-      }
-      res.json(data);
-        //Person.remove().exec();
-      Person.deleteMany({})
-      .then(success => console.log(success))
-      .catch(error => console.log(error));
-    });
-    })
-    .catch(error => {
-     if (error) {
-          next(error);
+        clearTimeout(t);
+        if (err) {
+          return next(err);
         }
+        if (!data) {
+          console.log("Missing `done()` argument");
+          return next({ message: "Missing callback argument" });
+        }
+        res.json(data);
+        //Person.remove().exec();
+        Person.deleteMany({})
+          .then((success) => console.log(success))
+          .catch((error) => console.log(error));
+      });
+    })
+    .catch((error) => {
+      if (error) {
+        next(error);
+      }
     });
-  
+
   /*
   Person.create(req.body, function (err, pers) {
     if (err) {
@@ -229,7 +228,7 @@ router.post("/find-all-by-name", function (req, res, next) {
     });
   });*/
 });
-  
+
 const findByFood = require("./myApp.js").findOneByFood;
 router.post("/find-one-by-food", function (req, res, next) {
   let t = setTimeout(() => {
@@ -237,26 +236,27 @@ router.post("/find-one-by-food", function (req, res, next) {
   }, TIMEOUT);
   let p = new Person(req.body);
   p.save()
-    .then(pers => {
-        findByFood(pers.favoriteFoods[0], function (err, data) {
-          clearTimeout(t);
-          if (err) {
-            return next(err);
-          }
-          if (!data) {
-            console.log("Missing `done()` argument");
-            return next({ message: "Missing callback argument" });
-          }
-          res.json(data);
-          p.deleteOne();
-          //p.remove();
-        });
-    }).catch(error => { 
+    .then((pers) => {
+      findByFood(pers.favoriteFoods[0], function (err, data) {
+        clearTimeout(t);
+        if (err) {
+          return next(err);
+        }
+        if (!data) {
+          console.log("Missing `done()` argument");
+          return next({ message: "Missing callback argument" });
+        }
+        res.json(data);
+        p.deleteOne();
+        //p.remove();
+      });
+    })
+    .catch((error) => {
       return next(error);
-    });  
-}); 
+    });
+});
 
-  /*
+/*
 const findByFood = require("./myApp.js").findOneByFood;
 router.post("/find-one-by-food", function (req, res, next) {
   let t = setTimeout(() => {
@@ -289,7 +289,7 @@ router.get("/find-by-id", function (req, res, next) {
   }, TIMEOUT);
   let p = new Person({ name: "test", age: 0, favoriteFoods: ["none"] });
   p.save()
-    .then(pers => {
+    .then((pers) => {
       findById(pers._id, function (err, data) {
         clearTimeout(t);
         if (err) {
@@ -303,14 +303,14 @@ router.get("/find-by-id", function (req, res, next) {
         p.deleteOne();
       });
     })
-    .catch(error => {
+    .catch((error) => {
       if (error) {
-          return next(error);
-        }
+        return next(error);
+      }
     });
 });
 
- /* 
+/* 
 const findById = require("./myApp.js").findPersonById;
 router.get("/find-by-id", function (req, res, next) {
   let t = setTimeout(() => {
@@ -336,7 +336,7 @@ router.get("/find-by-id", function (req, res, next) {
   });
 });
 */
-  
+
 const findEdit = require("./myApp.js").findEditThenSave;
 router.post("/find-edit-save", function (req, res, next) {
   let t = setTimeout(() => {
