@@ -288,6 +288,35 @@ router.get("/find-by-id", function (req, res, next) {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person({ name: "test", age: 0, favoriteFoods: ["none"] });
+  p.save()
+    .then(pers => {
+      findById(pers._id, function (err, data) {
+        clearTimeout(t);
+        if (err) {
+          return next(err);
+        }
+        if (!data) {
+          console.log("Missing `done()` argument");
+          return next({ message: "Missing callback argument" });
+        }
+        res.json(data);
+        p.deleteOne();
+      });
+    })
+    .catch(error => {
+      if (error) {
+          return next(error);
+        }
+    });
+});
+
+ /* 
+const findById = require("./myApp.js").findPersonById;
+router.get("/find-by-id", function (req, res, next) {
+  let t = setTimeout(() => {
+    next({ message: "timeout" });
+  }, TIMEOUT);
+  let p = new Person({ name: "test", age: 0, favoriteFoods: ["none"] });
   p.save(function (err, pers) {
     if (err) {
       return next(err);
@@ -306,7 +335,8 @@ router.get("/find-by-id", function (req, res, next) {
     });
   });
 });
-
+*/
+  
 const findEdit = require("./myApp.js").findEditThenSave;
 router.post("/find-edit-save", function (req, res, next) {
   let t = setTimeout(() => {

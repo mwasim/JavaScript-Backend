@@ -55,16 +55,19 @@ const findPeopleByName = (personName, done) => {
 
 const findOneByFood = (food, done) => {
   //done(null /*, data*/);
-  Person.findOne({favoriteFoods: foodName})
-    .then(data => {
+  Person.findOne({ favoriteFoods: foodName })
+    .then((data) => {
       //console.log(`findOneByFood ${foodName}`, data);
       done(null, data);
     })
-    .catch(error => done(error));
+    .catch((error) => done(error));
 };
 
 const findPersonById = (personId, done) => {
-  done(null /*, data*/);
+  //done(null /*, data*/);
+  Person.findById(personId)
+    .then((data) => done(null, data))
+    .catch((error) => done(error));
 };
 
 const findEditThenSave = (personId, done) => {
