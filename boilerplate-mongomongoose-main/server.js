@@ -247,7 +247,9 @@ router.post("/find-one-by-food", function (req, res, next) {
           return next({ message: "Missing callback argument" });
         }
         res.json(data);
-        p.deleteOne();
+        p.deleteOne()
+          .then((data) => console.log(data))
+          .catch((err) => console.log(err));
         //p.remove();
       });
     })
@@ -300,7 +302,9 @@ router.get("/find-by-id", function (req, res, next) {
           return next({ message: "Missing callback argument" });
         }
         res.json(data);
-        p.deleteOne();
+        p.deleteOne()
+          .then((data) => console.log(data))
+          .catch((err) => console.log(err));
       });
     })
     .catch((error) => {
@@ -343,28 +347,30 @@ router.post("/find-edit-save", function (req, res, next) {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person(req.body);
-  p.save(function (err, pers) {
-    if (err) {
-      return next(err);
-    }
-    try {
-      findEdit(pers._id, function (err, data) {
-        clearTimeout(t);
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          console.log("Missing `done()` argument");
-          return next({ message: "Missing callback argument" });
-        }
-        res.json(data);
-        p.remove();
-      });
-    } catch (e) {
-      console.log(e);
-      return next(e);
-    }
-  });
+  p.save()
+    .then((pers) => {
+      try {
+        findEdit(pers._id, function (err, data) {
+          clearTimeout(t);
+          if (err) {
+            return next(err);
+          }
+          if (!data) {
+            console.log("Missing `done()` argument");
+            return next({ message: "Missing callback argument" });
+          }
+          res.json(data);
+          p.deleteOne()
+            .then((data) => console.log(data))
+            .catch((err) => console.log(err));
+          //p.remove();
+        });
+      } catch (e) {
+        console.log(e);
+        return next(e);
+      }
+    })
+    .catch((err) => next(err));
 });
 
 const update = require("./myApp.js").findAndUpdate;

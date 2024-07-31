@@ -73,7 +73,21 @@ const findPersonById = (personId, done) => {
 const findEditThenSave = (personId, done) => {
   const foodToAdd = "hamburger";
 
-  done(null /*, data*/);
+  Person.findById(personId)
+    .then((person) => {
+      // Add "hamburger" to the person's favoriteFoods array
+      person.favoriteFoods.push(foodToAdd);
+
+      if (person.schema.path("favoriteFoods").instance === "Mixed") {
+        person.markModified("favoriteFoods");
+      }
+
+      person
+        .save()
+        .then((updatedPerson) => done(null, updatedPerson))
+        .catch((error) => done(error));
+    })
+    .catch((error) => done(error));
 };
 
 const findAndUpdate = (personName, done) => {
