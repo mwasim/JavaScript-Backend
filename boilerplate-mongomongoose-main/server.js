@@ -406,45 +406,42 @@ router.post("/find-one-update", function (req, res, next) {
 
 const removeOne = require("./myApp.js").removeById;
 router.post("/remove-one-person", function (req, res, next) {
-  Person.remove({}, function (err) {
-    if (err) {
-      return next(err);
-    }
-    let t = setTimeout(() => {
-      next({ message: "timeout" });
-    }, TIMEOUT);
-    let p = new Person(req.body);
-    p.save(function (err, pers) {
-      if (err) {
-        return next(err);
-      }
-      try {
-        removeOne(pers._id, function (err, data) {
-          clearTimeout(t);
-          if (err) {
-            return next(err);
+  Person.deleteOne()
+    .then((data) => {
+      let t = setTimeout(() => {
+        next({ message: "timeout" });
+      }, TIMEOUT);
+      let p = new Person(req.body);
+      p.save()
+        .then((pers) => {
+          try {
+            removeOne(pers._id, function (err, data) {
+              clearTimeout(t);
+              if (err) {
+                return next(err);
+              }
+              if (!data) {
+                console.log("Missing `done()` argument");
+                return next({ message: "Missing callback argument" });
+              }
+              console.log(data);
+              Person.countDocuments()
+                .then((cnt) => {
+                  data = data.toObject();
+                  data.count = cnt;
+                  console.log(data);
+                  res.json(data);
+                })
+                .catch((err) => next(err));
+            });
+          } catch (e) {
+            console.log(e);
+            return next(e);
           }
-          if (!data) {
-            console.log("Missing `done()` argument");
-            return next({ message: "Missing callback argument" });
-          }
-          console.log(data);
-          Person.count(function (err, cnt) {
-            if (err) {
-              return next(err);
-            }
-            data = data.toObject();
-            data.count = cnt;
-            console.log(data);
-            res.json(data);
-          });
-        });
-      } catch (e) {
-        console.log(e);
-        return next(e);
-      }
-    });
-  });
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
 });
 
 const removeMany = require("./myApp.js").removeManyPeople;
