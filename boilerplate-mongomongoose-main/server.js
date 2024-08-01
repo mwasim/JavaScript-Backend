@@ -379,28 +379,29 @@ router.post("/find-one-update", function (req, res, next) {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person(req.body);
-  p.save(function (err, pers) {
-    if (err) {
-      return next(err);
-    }
-    try {
-      update(pers.name, function (err, data) {
-        clearTimeout(t);
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          console.log("Missing `done()` argument");
-          return next({ message: "Missing callback argument" });
-        }
-        res.json(data);
-        p.remove();
-      });
-    } catch (e) {
-      console.log(e);
-      return next(e);
-    }
-  });
+  p.save()
+    .then((pers) => {
+      try {
+        update(pers.name, function (err, data) {
+          clearTimeout(t);
+          if (err) {
+            return next(err);
+          }
+          if (!data) {
+            console.log("Missing `done()` argument");
+            return next({ message: "Missing callback argument" });
+          }
+          res.json(data);
+          p.deleteOne()
+            .then((data) => console.log(data))
+            .catch((error) => console.log(error));
+        });
+      } catch (e) {
+        console.log(e);
+        return next(e);
+      }
+    })
+    .catch((err) => next(err));
 });
 
 const removeOne = require("./myApp.js").removeById;
