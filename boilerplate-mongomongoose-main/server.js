@@ -446,53 +446,58 @@ router.post("/remove-one-person", function (req, res, next) {
 
 const removeMany = require("./myApp.js").removeManyPeople;
 router.post("/remove-many-people", function (req, res, next) {
-  Person.remove({}, function (err) {
-    if (err) {
-      return next(err);
-    }
-    let t = setTimeout(() => {
-      next({ message: "timeout" });
-    }, TIMEOUT);
-    Person.create(req.body, function (err, pers) {
-      if (err) {
-        return next(err);
-      }
-      try {
-        removeMany(function (err, data) {
-          clearTimeout(t);
-          if (err) {
-            return next(err);
-          }
-          if (!data) {
-            console.log("Missing `done()` argument");
-            return next({ message: "Missing callback argument" });
-          }
-          Person.count(function (err, cnt) {
-            if (err) {
-              return next(err);
-            }
-            if (data.ok === undefined) {
-              // for mongoose v4
-              try {
-                data = JSON.parse(data);
-              } catch (e) {
-                console.log(e);
-                return next(e);
+  Person.deleteMany({})
+    .then((d) => {
+      let t = setTimeout(() => {
+        next({ message: "timeout" });
+      }, TIMEOUT);
+
+      Person.create(req.body)
+        .then((pers) => {
+          try {
+            removeMany(function (err, data) {
+              clearTimeout(t);
+              if (err) {
+                return next(err);
               }
-            }
-            res.json({
-              n: data.n,
-              count: cnt,
-              ok: data.ok,
+              if (!data) {
+                console.log("Missing `done()` argument");
+                return next({ message: "Missing callback argument" });
+              }
+
+              Person.countDocuments({})
+                .then((cnt) => {
+                  if (data.ok === undefined) {
+                    // for mongoose v4
+                    try {
+                      // console.log("data: ", data);
+                      // console.log("count: ", cnt);
+                      data = JSON.parse(data);
+                    } catch (e) {
+                      console.log(e);
+                      return next(e);
+                    }
+                  }
+                  res.json({
+                    n: data.n,
+                    count: cnt,
+                    ok: data.ok,
+                  });
+                })
+                .catch((err) => next(err));
             });
-          });
+          } catch (e) {
+            console.log(e);
+            return next(e);
+          }
+        })
+        .catch((err) => {
+          return next(err);
         });
-      } catch (e) {
-        console.log(e);
-        return next(e);
-      }
+    })
+    .catch((err) => {
+      return next(err);
     });
-  });
 });
 
 const chain = require("./myApp.js").queryChain;
