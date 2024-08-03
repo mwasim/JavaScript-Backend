@@ -505,32 +505,39 @@ router.post("/query-tools", function (req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
-  Person.remove({}, function (err) {
-    if (err) {
-      return next(err);
-    }
-    Person.create(req.body, function (err, pers) {
-      if (err) {
-        return next(err);
-      }
-      try {
-        chain(function (err, data) {
-          clearTimeout(t);
-          if (err) {
-            return next(err);
+
+  Person.deleteMany({})
+    .then((d) => {
+      // let t = setTimeout(() => {
+      //   next({ message: "timeout" });
+      // }, TIMEOUT);
+
+      Person.create(req.body)
+        .then((pers) => {
+          try {
+            chain(function (err, data) {
+              clearTimeout(t);
+              if (err) {
+                return next(err);
+              }
+              if (!data) {
+                console.log("Missing `done()` argument");
+                return next({ message: "Missing callback argument" });
+              }
+              res.json(data);
+            });
+          } catch (e) {
+            console.log(e);
+            return next(e);
           }
-          if (!data) {
-            console.log("Missing `done()` argument");
-            return next({ message: "Missing callback argument" });
-          }
-          res.json(data);
+        })
+        .catch((err) => {
+          return next(err);
         });
-      } catch (e) {
-        console.log(e);
-        return next(e);
-      }
+    })
+    .catch((err) => {
+      return next(err);
     });
-  });
 });
 
 app.use("/_api", enableCORS, router);
