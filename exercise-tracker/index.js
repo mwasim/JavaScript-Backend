@@ -62,7 +62,15 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 
       newExercise
         .save()
-        .then((exercise) => res.json(exercise))
+        .then((exer) => {
+          res.json({
+            _id: user._id,
+            username: user.username,
+            date: exer.date.toDateString(),
+            duration: exer.duration,
+            description: exer.description,
+          });
+        })
         .catch((err) => res.status(400).json({ error: err.message }));
     })
     .catch((err) => res.status(400).json({ error: err.message }));
@@ -125,21 +133,6 @@ app.get("/api/users/:_id/logs", (req, res) => {
           });
         })
         .catch((err) => res.status(400).json({ error: err.message }));
-
-      // .exec((err, exercises) => {
-      //   if (err) return res.status(400).json({ error: err.message });
-      //   const log = exercises.map(exercise => ({
-      //     description: exercise.description,
-      //     duration: exercise.duration,
-      //     date: exercise.date.toDateString()
-      //   }));
-      //   res.json({
-      //     username: user.username,
-      //     count: exercises.length,
-      //     _id: user._id,
-      //     log
-      //   });
-      // });
     })
     .catch((err) => res.status(400).json({ error: err.message }));
 });
